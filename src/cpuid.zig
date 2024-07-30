@@ -7,27 +7,27 @@ pub const CpuidResult = struct {
     edx: u32,
 };
 
-pub fn get(leaf: u32, subleaf: u32) CpuidResult {
-    var result: CpuidResult = undefined;
+pub inline fn get(leaf: u32) CpuidResult {
+    var eax: u32 = undefined;
+    var ebx: u32 = undefined;
+    var edx: u32 = undefined;
+    var ecx: u32 = undefined;
 
-    result.eax = asm volatile ("cpuid"
-        : [ret] "={eax}" (-> u32),
+    asm volatile (
+        \\cpuid
+        : [eax] "={eax}" (eax),
+          [ebx] "={ebx}" (ebx),
+          [edx] "={edx}" (edx),
+          [ecx] "={ecx}" (ecx),
         : [leaf] "{eax}" (leaf),
-          [subleaf] "{ecx}" (subleaf),
-        : "{ebx}", "{ecx}", "{edx}", "memory"
     );
 
-    result.ebx = asm volatile (""
-        : [ret] "={ebx}" (-> u32),
-    );
-    result.ecx = asm volatile (""
-        : [ret] "={ecx}" (-> u32),
-    );
-    result.edx = asm volatile (""
-        : [ret] "={edx}" (-> u32),
-    );
-
-    return result;
+    return .{
+        .eax = eax,
+        .ebx = ebx,
+        .ecx = ecx,
+        .edx = edx,
+    };
 }
 
 pub fn getCpuVendor() [12]u8 {
