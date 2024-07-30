@@ -31,7 +31,7 @@ pub inline fn get(leaf: u32) CpuidResult {
 }
 
 pub fn getCpuVendor() [12]u8 {
-    var result = get(0, 0);
+    var result = get(0);
 
     var vendor: [12]u8 = undefined;
     std.mem.copyForwards(u8, vendor[0..4], std.mem.asBytes(&result.ebx));
