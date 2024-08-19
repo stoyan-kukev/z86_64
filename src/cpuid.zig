@@ -7,7 +7,7 @@ pub const CpuidResult = struct {
     edx: u32,
 };
 
-pub inline fn get(leaf: u32) CpuidResult {
+pub inline fn cpuid(leaf: u32) CpuidResult {
     var eax: u32 = undefined;
     var ebx: u32 = undefined;
     var edx: u32 = undefined;
@@ -31,7 +31,7 @@ pub inline fn get(leaf: u32) CpuidResult {
 }
 
 pub fn getCpuVendor() [12]u8 {
-    var result = get(0);
+    var result = cpuid(0);
 
     var vendor: [12]u8 = undefined;
     std.mem.copyForwards(u8, vendor[0..4], std.mem.asBytes(&result.ebx));
@@ -40,3 +40,38 @@ pub fn getCpuVendor() [12]u8 {
 
     return vendor;
 }
+
+pub const CpuInfo = struct {
+    var cached_result: ?CpuidResult = null;
+
+    fn getCachedCpuid1() CpuidResult {
+        return cached_result orelse {
+            cached_result = cpuid(1);
+        };
+    }
+
+    pub fn getLocalApicId() u8 {
+        const result = getCachedCpuid1();
+        return @intCast((result.ebx >> 24) & 0xFF);
+    }
+
+    pub fn getMaxLogicalProcessors() u8 {
+        const result = getCachedCpuid1();
+        return @intCast((result.ebx >> 16) & 0xFF);
+    }
+
+    pub fn getClFlushLineSize() u8 {
+        const result = getCachedCpuid1();
+        return @intCast((result.ebx >> 8) & 0xFF);
+    }
+
+    pub fn getBrandIndex() u8 {
+        const result = getCachedCpuid1();
+        return @intCast(result.ebx & 0xFF);
+    }
+
+    pub fn hasLocalApic() bool {
+        const result = getCachedCpuid1();
+        return (result.edx & (1 << 9)) != 0;
+    }
+};
