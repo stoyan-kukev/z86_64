@@ -42,6 +42,23 @@ pub fn getCpuVendor() [12]u8 {
 }
 
 pub const CpuInfo = struct {
+    pub const CpuFeatures = struct {
+        sse3: bool,
+        pclmulqdq: bool,
+        monitor: bool,
+        ssse3: bool,
+        fma: bool,
+        cmpxchg16b: bool,
+        sse41: bool,
+        sse42: bool,
+        popcnt: bool,
+        aes: bool,
+        xsave: bool,
+        osxsave: bool,
+        avx: bool,
+        f16c: bool,
+    };
+
     var cached_result: ?CpuidResult = null;
 
     fn getCachedCpuid1() CpuidResult {
@@ -75,5 +92,27 @@ pub const CpuInfo = struct {
     pub fn hasLocalApic() bool {
         const result = getCachedCpuid1();
         return (result.edx & (1 << 9)) != 0;
+    }
+
+    pub fn getCpuFeatures() CpuFeatures {
+        const result = getCachedCpuid1();
+        const ecx = result.ecx;
+
+        return CpuFeatures{
+            .sse3 = (ecx & (1 << 0)) != 0,
+            .pclmulqdq = (ecx & (1 << 1)) != 0,
+            .monitor = (ecx & (1 << 3)) != 0,
+            .ssse3 = (ecx & (1 << 9)) != 0,
+            .fma = (ecx & (1 << 12)) != 0,
+            .cmpxchg16b = (ecx & (1 << 13)) != 0,
+            .sse41 = (ecx & (1 << 19)) != 0,
+            .sse42 = (ecx & (1 << 20)) != 0,
+            .popcnt = (ecx & (1 << 23)) != 0,
+            .aes = (ecx & (1 << 25)) != 0,
+            .xsave = (ecx & (1 << 26)) != 0,
+            .osxsave = (ecx & (1 << 27)) != 0,
+            .avx = (ecx & (1 << 28)) != 0,
+            .f16c = (ecx & (1 << 29)) != 0,
+        };
     }
 };
