@@ -45,9 +45,11 @@ pub const CpuInfo = struct {
     var cached_result: ?CpuidResult = null;
 
     fn getCachedCpuid1() CpuidResult {
-        return cached_result orelse {
+        if (cached_result == null) {
             cached_result = cpuid(1);
-        };
+        }
+
+        return cached_result.?;
     }
 
     pub fn getLocalApicId() u8 {
