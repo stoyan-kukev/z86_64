@@ -43,6 +43,29 @@ pub fn getCpuVendor() [12]u8 {
 
 pub const CpuInfo = struct {
     pub const CpuFeatures = struct {
+        fpu: bool,
+        vme: bool,
+        de: bool,
+        pse: bool,
+        tsc: bool,
+        msr: bool,
+        pae: bool,
+        mce: bool,
+        cmpxchg8b: bool,
+        apic: bool,
+        sys_enterexit: bool,
+        mtrr: bool,
+        pge: bool,
+        mca: bool,
+        cmov: bool,
+        pat: bool,
+        pse36: bool,
+        clfsh: bool,
+        mmx: bool,
+        fxsr: bool,
+        sse: bool,
+        sse2: bool,
+        htt: bool,
         sse3: bool,
         pclmulqdq: bool,
         monitor: bool,
@@ -97,8 +120,33 @@ pub const CpuInfo = struct {
     pub fn getCpuFeatures() CpuFeatures {
         const result = getCachedCpuid1();
         const ecx = result.ecx;
+        const ebx = result.ebx;
 
         return CpuFeatures{
+            .fpu = (ebx & (1 << 0)) != 0,
+            .vme = (ebx & (1 << 1)) != 0,
+            .de = (ebx & (1 << 2)) != 0,
+            .pse = (ebx & (1 << 3)) != 0,
+            .tsc = (ebx & (1 << 4)) != 0,
+            .msr = (ebx & (1 << 5)) != 0,
+            .pae = (ebx & (1 << 6)) != 0,
+            .mce = (ebx & (1 << 7)) != 0,
+            .cmpxchg8b = (ebx & (1 << 8)) != 0,
+            .apic = (ebx & (1 << 9)) != 0,
+            .sys_enterexit = (ebx & (1 << 11)) != 0,
+            .mtrr = (ebx & (1 << 12)) != 0,
+            .pge = (ebx & (1 << 13)) != 0,
+            .mca = (ebx & (1 << 14)) != 0,
+            .cmov = (ebx & (1 << 15)) != 0,
+            .pat = (ebx & (1 << 16)) != 0,
+            .pse36 = (ebx & (1 << 17)) != 0,
+            .clfsh = (ebx & (1 << 19)) != 0,
+            .mmx = (ebx & (1 << 23)) != 0,
+            .fxsr = (ebx & (1 << 24)) != 0,
+            .sse = (ebx & (1 << 25)) != 0,
+            .sse2 = (ebx & (1 << 26)) != 0,
+            .htt = (ebx & (1 << 28)) != 0,
+
             .sse3 = (ecx & (1 << 0)) != 0,
             .pclmulqdq = (ecx & (1 << 1)) != 0,
             .monitor = (ecx & (1 << 3)) != 0,
